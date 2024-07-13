@@ -51,7 +51,7 @@ class UpdateProgress(APIView):
         
         try:
             print(data['lesson'])
-            lesson = LessonProgress.objects.update_or_create(progressObj=progress, lesson__id=data['lesson'], defaults={'completed': True})
+            lesson = LessonProgress.objects.update_or_create(progressObj=progress, lesson__pk=data['lesson'], defaults={'completed': True})
         except:
             lessonObj = Lesson.objects.filter(id=data['lesson']).first()
             LessonProgress.objects.create(lesson=lessonObj, progressObj=progress, completed=True)
