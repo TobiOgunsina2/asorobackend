@@ -23,7 +23,6 @@ class GetProfile(APIView):
         phrases = PhraseProgressSerializer(PhraseProgress.objects.filter(progressObj=progress), many=True).data
         lessons = LessonProgressSerializer(LessonProgress.objects.filter(progressObj=progress.id), many=True).data
         # Create serializers, serialize and add to progress object
-        print(lessons)
         progress_data = progress_serializer.data
 
         progress_data['sentences'] = sentences
@@ -31,8 +30,12 @@ class GetProfile(APIView):
         progress_data['words'] = words
         progress_data['lessons'] = lessons
 
+        shortened_user = myuser.first_name[0]+myuser.last_name[0]
         serialized = UserSerializer(myuser)
-        finished_data = {'userData': serialized.data, 'progressData': progress_data}
+        data = serialized.data
+        data['shortened_user']= shortened_user
+
+        finished_data = {'userData': data, 'progressData': progress_data}
         return Response(finished_data)
 
 class UpdateProgress(APIView):
