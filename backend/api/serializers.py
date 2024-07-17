@@ -23,7 +23,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class WordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Word
-        fields = ['id', 'text', 'wordTranslation', 'wordLesson', 'wordNote', 'relatedWords']
+        fields = ['id', 'text', 'wordTranslation', 'wordNote', 'relatedWords']
 
 class SentenceSerializer(serializers.ModelSerializer):
     class Meta:

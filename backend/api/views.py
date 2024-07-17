@@ -32,6 +32,12 @@ class GetLesson(generics.ListAPIView):
             serializer.data[0]['phrases'] += PhraseSerializer(Phrase.objects.filter(id=i), many=True).data
             for x in range(len(serializer.data[0]['phrases'][-1]['relatedPhrases'])):
                 serializer.data[0]['phrases'][-1]['relatedPhrases'][x-1] = PhraseSerializer(Phrase.objects.get(id=serializer.data[0]['phrases'][-1]['relatedPhrases'][x-1])).data
+            for x in range(len(serializer.data[0]['phrases'][-1]['containedWords'])):
+                w = Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])
+                serializer.data[0]['phrases'][-1]['containedWords'][x-1] = WordSerializer(Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])).data
+
+
+                print(w, i)
         serializer.data[0]['sentences'] = SentenceSerializer(Sentence.objects.filter(lesson=lid), many=True).data
         return Response(serializer.data)
 
@@ -47,9 +53,13 @@ class GetReview(generics.ListAPIView):
         phrases = []
         sentences = []
         for i in phrase_progress:
-            phrases+=PhraseSerializer(Phrase.objects.filter(id=i.phrase.id), many=True).data
+            phrase_data = PhraseSerializer(Phrase.objects.filter(id=i.phrase.id), many=True).data
+            phrase_data[0]['masteryLevel'] = i.masteryLevel
+            phrases+=phrase_data
         for i in sentence_progress:
-            sentences+=SentenceSerializer(Sentence.objects.filter(id=i.sentence.id), many=True).data
+            sentence_data = SentenceSerializer(Sentence.objects.filter(id=i.sentence.id), many=True).data
+            sentence_data[0]['masteryLevel'] = i.masteryLevel 
+            sentences+=sentence_data
         serializer = {'data': {'phrases': phrases, 'sentences': sentences}}
 
         return Response(serializer['data'])
