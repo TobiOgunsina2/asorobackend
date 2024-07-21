@@ -73,7 +73,7 @@ class UpdateProgress(APIView):
         for i in data['phrases']:
             try:
                 phrase = PhraseProgress.objects.filter(phrase__pk=i, progressObj=progress).first()
-                if phrase.masteryLevel<6:
+                if phrase.masteryLevel<15:
                     phrase.masteryLevel=phrase.masteryLevel+1
                     phrase.save()
             except:
@@ -83,7 +83,7 @@ class UpdateProgress(APIView):
         for i in data['sentences']:
             try:
                 sentence = SentenceProgress.objects.filter(sentence__pk=i, progressObj=progress).first()
-                if sentence.masteryLevel<6:
+                if sentence.masteryLevel<15:
                     sentence.masteryLevel=sentence.masteryLevel+1
                     sentence.save()
             except:
@@ -93,7 +93,7 @@ class UpdateProgress(APIView):
         for i in data['words']:
             try:
                 word = WordProgress.objects.filter(word__pk=i, progressObj=progress).first()
-                if word.masteryLevel<6:
+                if word.masteryLevel<15:
                     word.masteryLevel=word.masteryLevel+1
                     word.save()
             except:

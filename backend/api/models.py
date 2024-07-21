@@ -39,7 +39,13 @@ class Phrase(models.Model):
     def __str__(self):
         return self.text
 
-
+class CustomSlide(models.Model):
+    id = models.AutoField(primary_key=True)
+    normalComponentType = models.CharField(max_length=1, choices={'i':'Intro', 'm': 'MultipleChoice', 'y': 'TrueFalse', 'b': 'BuildBlock', 'f': 'fill', 'p': 'MatchPairs', 'x': 'TextWrite', 'd': 'Dialogue'})
+    prompt = models.CharField(max_length=200, default='')
+    options = models.CharField(max_length=500, blank=True, null=True) # Format= #E kaale #E kaaro #E kurole # Answer not included
+    answer = models.CharField(max_length=300, default='')
+    dialogue = models.CharField(max_length=1000, blank=True, null=True) # Format= #Ms. Folake:I know #Seyi: Yes #Ms. Folake: Cool
 
 class Lesson(models.Model):
     id = models.AutoField(primary_key=True)

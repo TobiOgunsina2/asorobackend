@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Unit, Lesson, Word, Phrase, Note, Sentence
+from .models import Unit, Lesson, Word, Phrase, Note, Sentence, CustomSlide
 
 # Register your models here.
 
@@ -12,3 +12,4 @@ admin.site.register(Word, ObjectAdmin)
 admin.site.register(Sentence)
 admin.site.register(Phrase, ObjectAdmin)
 admin.site.register(Note, ObjectAdmin)
+admin.site.register(CustomSlide, ObjectAdmin)
