@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Word, Unit, Lesson, Phrase, Sentence
+from .models import Word, Unit, Lesson, Phrase, Sentence, Note, CustomSlide
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 class UserSerializer(serializers.ModelSerializer):
@@ -33,6 +33,17 @@ class PhraseSerializer(serializers.ModelSerializer):
     class Meta:
         model = Phrase
         fields = ['id', 'text', 'phraseTranslation', 'phraseNote', 'relatedPhrases', 'containedWords', 'brokenDownPhrase']
+
+class NoteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Note
+        fields = ['id', 'title', 'note', 'lesson']
+
+class CustomSlideSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomSlide
+        fields = ['id', 'normalComponentType', 'prompt', 'options', 'answer', 'dialogue', 'lesson']
+
 
 class LessonSerializer(serializers.ModelSerializer):
     class Meta:

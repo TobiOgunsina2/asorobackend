@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, LessonSerializer, UnitSerializer, WordSerializer, MyTokenObtainPairSerializer, PhraseSerializer, SentenceSerializer, RegisterSerializer
+from .serializers import UserSerializer, LessonSerializer, UnitSerializer, WordSerializer, MyTokenObtainPairSerializer, PhraseSerializer, SentenceSerializer, RegisterSerializer, NoteSerializer, CustomSlideSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .models import Word, Unit, Lesson,Phrase, Sentence
+from .models import Word, Unit, Lesson,Phrase, Sentence, CustomSlide, Note
 from progress.models import Progress, PhraseProgress, SentenceProgress
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -35,10 +35,11 @@ class GetLesson(generics.ListAPIView):
             for x in range(len(serializer.data[0]['phrases'][-1]['containedWords'])):
                 w = Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])
                 serializer.data[0]['phrases'][-1]['containedWords'][x-1] = WordSerializer(Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])).data
-
-
                 print(w, i)
         serializer.data[0]['sentences'] = SentenceSerializer(Sentence.objects.filter(lesson=lid), many=True).data
+        serializer.data[0]['notes'] = NoteSerializer(Note.objects.filter(lesson=lid), many=True).data
+        serializer.data[0]['custom_slides'] = CustomSlideSerializer(CustomSlide.objects.filter(lesson=lid), many=True).data
+        
         return Response(serializer.data)
 
 class GetReview(generics.ListAPIView):
