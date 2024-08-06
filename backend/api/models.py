@@ -59,8 +59,8 @@ class CustomSlide(models.Model):
     options = models.CharField(max_length=500, blank=True, null=True) # Format= #E kaale #E kaaro #E kurole # Answer not included
     answer = models.CharField(max_length=300, default='')
     dialogue = models.CharField(max_length=1000, blank=True, null=True) # Format= #Ms. Folake:I know #Seyi: Yes #Ms. Folake: Cool
+    audio = models.CharField(max_length=300, default='')
     lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, default=1)
-
 
 class Sentence(models.Model):
     id = models.AutoField(primary_key=True)
@@ -78,6 +78,22 @@ class Sentence(models.Model):
 
     def __str__(self):
         return self.text
+
+class Slide(models.Model):
+    id = models.AutoField(primary_key=True)
+
+    lesson = models.ForeignKey(Lesson, on_delete=models.CASCADE, default=1)
+
+    normalComponentType = models.CharField(max_length=1, choices={'i':'Intro', 'm': 'MultipleChoice', 'y': 'TrueFalse', 'b': 'BuildBlock', 'f': 'FillinBlank', 'p': 'MatchPairs', 'x': 'TextWrite', 'd': 'Dialogue'})
+    
+    phrase = models.ForeignKey(Phrase, on_delete=models.CASCADE)
+    Sentence = models.ForeignKey(Sentence, on_delete=models.CASCADE, blank=True, null=True)
+
+    prompt = models.CharField(max_length=200, default='', blank=True, null=True)
+    options = models.CharField(max_length=500, blank=True, null=True) # Format= #E kaale #E kaaro #E kurole # Answer not included
+    answer = models.CharField(max_length=300, default='', blank=True, null=True)
+    dialogue = models.CharField(max_length=1000, blank=True, null=True) # Format= #Ms. Folake:I know #Seyi: Yes #Ms. Folake: Cool
+    audio = models.CharField(max_length=300, default='', blank=True, null=True)
 
 
 class Note(models.Model):

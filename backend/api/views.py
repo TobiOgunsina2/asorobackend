@@ -39,7 +39,9 @@ class GetLesson(generics.ListAPIView):
         serializer.data[0]['sentences'] = SentenceSerializer(Sentence.objects.filter(lesson=lid), many=True).data
         serializer.data[0]['notes'] = NoteSerializer(Note.objects.filter(lesson=lid), many=True).data
         serializer.data[0]['custom_slides'] = CustomSlideSerializer(CustomSlide.objects.filter(lesson=lid), many=True).data
+        serializer.data[0]['words'] = WordSerializer(Word.objects.filter(lesson=lid), many=True).data
         
+
         return Response(serializer.data)
 
 class GetReview(generics.ListAPIView):
