@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, LessonSerializer, UnitSerializer, WordSerializer, MyTokenObtainPairSerializer, PhraseSerializer, SentenceSerializer, RegisterSerializer, NoteSerializer, CustomSlideSerializer
+from .serializers import UserSerializer, LessonSerializer, UnitSerializer, WordSerializer, MyTokenObtainPairSerializer, PhraseSerializer, SentenceSerializer, RegisterSerializer, NoteSerializer, SlideSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
-from .models import Word, Unit, Lesson,Phrase, Sentence, CustomSlide, Note
+from .models import Word, Unit, Lesson,Phrase, Sentence, Slide, Note
 from progress.models import Progress, PhraseProgress, SentenceProgress
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -27,7 +27,7 @@ class GetLesson(generics.ListAPIView):
     def list(self, request, uid, lid):
         queryset = self.get_queryset().filter(unit=Unit.objects.get(id=uid).id).filter(id=lid)
         serializer = LessonSerializer(queryset, many=True)
-        serializer.data[0]['phrases'] = []
+        """serializer.data[0]['phrases'] = []
         for i in serializer.data[0]['phrase']:
             serializer.data[0]['phrases'] += PhraseSerializer(Phrase.objects.filter(id=i), many=True).data
             for x in range(len(serializer.data[0]['phrases'][-1]['relatedPhrases'])):
@@ -35,12 +35,9 @@ class GetLesson(generics.ListAPIView):
             for x in range(len(serializer.data[0]['phrases'][-1]['containedWords'])):
                 w = Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])
                 serializer.data[0]['phrases'][-1]['containedWords'][x-1] = WordSerializer(Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])).data
-                print(w, i)
-        serializer.data[0]['sentences'] = SentenceSerializer(Sentence.objects.filter(lesson=lid), many=True).data
-        serializer.data[0]['notes'] = NoteSerializer(Note.objects.filter(lesson=lid), many=True).data
-        serializer.data[0]['custom_slides'] = CustomSlideSerializer(CustomSlide.objects.filter(lesson=lid), many=True).data
-        serializer.data[0]['words'] = WordSerializer(Word.objects.filter(lesson=lid), many=True).data
-        
+                print(w, i)"""
+        print(serializer.data)
+        serializer.data[0]['slides'] = SlideSerializer(Slide.objects.filter(lesson=lid), many=True).data
 
         return Response(serializer.data)
 
@@ -91,7 +88,6 @@ class GetPhrase(generics.ListAPIView):
         serializer = PhraseSerializer(queryset, many=True)
         print(serializer.data)
         return Response(serializer.data)
-
 
 
 class CreateUserView(APIView):

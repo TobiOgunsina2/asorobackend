@@ -23,21 +23,26 @@ class RegisterSerializer(serializers.ModelSerializer):
 class WordSerializer(serializers.ModelSerializer):
     class Meta:
         model = Word
-        fields = ['id', 'text', 'wordTranslation', 'wordNote', 'relatedWords']
+        fields = ['id', 'text', 'translation', 'note', 'relatedWords']
 
-class SentenceSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Sentence
-        fields = ['id', 'text', 'translation', 'sentenceNote','lesson', 'order', 'containedPhrases', 'containedWords', 'brokenDownSentence']
 class PhraseSerializer(serializers.ModelSerializer):
+    containedWords = WordSerializer(many=True, read_only=True)
     class Meta:
         model = Phrase
-        fields = ['id', 'text', 'translation', 'phraseNote', 'relatedPhrases', 'containedWords', 'brokenDownPhrase']
+        fields = ['id', 'text', 'translation', 'note', 'relatedPhrases', 'containedWords', 'brokenDownPhrase']
+
+class SentenceSerializer(serializers.ModelSerializer):
+    containedPhrases = PhraseSerializer(many=True, read_only=True)
+    
+    class Meta:
+        model = Sentence
+        fields = ['id', 'text', 'translation', 'note', 'lesson', 'order', 'containedPhrases', 'containedWords', 'brokenDownSentence']
+
 
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
-        fields = ['id', 'title', 'note', 'lesson']
+        fields = ['id', 'title', 'note', 'audio','lesson']
 
 class CustomSlideSerializer(serializers.ModelSerializer):
     class Meta:
@@ -45,15 +50,19 @@ class CustomSlideSerializer(serializers.ModelSerializer):
         fields = ['id', 'normalComponentType', 'prompt', 'options', 'answer', 'dialogue', 'lesson']
 
 class SlideSerializer(serializers.ModelSerializer):
+    phrase = PhraseSerializer(many=True, read_only=True)
+    sentence = SentenceSerializer(read_only=True)
     class Meta:
         model = Slide
         fields = ['id', 'lesson', 'slideType', 'phrase', 'sentence', 'note', 'prompt', 'options', 'answer', 'dialogue', 'image','audio', 'video']
 
 
 class LessonSerializer(serializers.ModelSerializer):
+    sentences = SentenceSerializer(many=True, read_only=True)
+    phrase = PhraseSerializer(many=True, read_only=True)
     class Meta:
         model = Lesson
-        fields = ['id', 'lessonName', 'phrase', 'lessonDescription', 'lessonOrder', 'unit']
+        fields = ['id', 'lessonName', 'phrase', 'sentences','lessonDescription', 'lessonOrder', 'unit']
 
 
 class UnitSerializer(serializers.ModelSerializer):

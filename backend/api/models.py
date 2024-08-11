@@ -15,8 +15,8 @@ class Unit(models.Model):
 class Word(models.Model):
     id = models.AutoField(primary_key=True)
     text = models.CharField(max_length=100)
-    wordTranslation = models.CharField(max_length=100)
-    wordNote = models.CharField(max_length=300, blank=True, null=True)
+    translation = models.CharField(max_length=100)
+    note = models.CharField(max_length=300, blank=True, null=True)
     relatedWords= models.ManyToManyField('self',blank=True)
     
     def __str__(self):
