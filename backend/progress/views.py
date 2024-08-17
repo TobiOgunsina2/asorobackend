@@ -9,25 +9,28 @@ from api.models import Phrase, Sentence, Word, Lesson
 from datetime import date, timedelta
 from django.shortcuts import get_object_or_404
 from api.serializers import UserSerializer
+from rest_framework.permissions import IsAuthenticated, AllowAny
 # Create your views here.
 
 class GetProfile(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request, id, *args, **kwargs):
         myuser = get_object_or_404(User, pk=id)
 
         progress = Progress.objects.get(user=myuser)
         progress_serializer = ProgressSerializer(Progress.objects.get(user=myuser))
 
-        sentences = SentenceProgressSerializer(SentenceProgress.objects.filter(progressObj=progress), many=True).data
-        words = WordProgressSerializer(WordProgress.objects.filter(progressObj=progress), many=True).data
-        phrases = PhraseProgressSerializer(PhraseProgress.objects.filter(progressObj=progress), many=True).data
+        #sentences = SentenceProgressSerializer(SentenceProgress.objects.filter(progressObj=progress), many=True).data
+        #words = WordProgressSerializer(WordProgress.objects.filter(progressObj=progress), many=True).data
+        #phrases = PhraseProgressSerializer(PhraseProgress.objects.filter(progressObj=progress), many=True).data
+        
         lessons = LessonProgressSerializer(LessonProgress.objects.filter(progressObj=progress.id), many=True).data
         # Create serializers, serialize and add to progress object
         progress_data = progress_serializer.data
 
-        progress_data['sentences'] = sentences
-        progress_data['phrases'] = phrases
-        progress_data['words'] = words
+        #progress_data['sentences'] = sentences
+        #progress_data['phrases'] = phrases
+        #progress_data['words'] = words
         progress_data['lessons'] = lessons
 
         shortened_user = myuser.first_name[0]+myuser.last_name[0]
@@ -40,7 +43,7 @@ class GetProfile(APIView):
 
 class UpdateProgress(APIView):
     queryset = User.objects.all()
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
         try:
@@ -106,6 +109,9 @@ class UpdateProgress(APIView):
             pass
         elif progress.lastUpdate == (date.today() - timedelta(days=1)):
             progress.streak= progress.streak+1
+            progress.lastUpdate = date.today()
+        elif progress.lastUpdate == (date.today() - timedelta(days=2)):
+            progress.streak= 0
             progress.lastUpdate = date.today()
         else:
             progress.streak=1

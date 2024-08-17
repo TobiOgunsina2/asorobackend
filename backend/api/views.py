@@ -1,15 +1,17 @@
 from django.shortcuts import render
 from django.contrib.auth.models import User
 from rest_framework import generics
-from .serializers import UserSerializer, LessonSerializer, UnitSerializer, WordSerializer, MyTokenObtainPairSerializer, PhraseSerializer, SentenceSerializer, RegisterSerializer, NoteSerializer, SlideSerializer
+from .serializers import UserSerializer, LessonSerializer, LessonUnitSerializer, UnitSerializer, MyTokenObtainPairSerializer, PhraseSerializer, SentenceSerializer, RegisterSerializer, NoteSerializer, SlideSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Word, Unit, Lesson,Phrase, Sentence, Slide, Note
-from progress.models import Progress, PhraseProgress, SentenceProgress
+from progress.models import Progress, PhraseProgress, SentenceProgress, LessonProgress
+from progress.serializers import LessonProgressSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.shortcuts import get_object_or_404
 
 
 # Create your views here.
@@ -22,7 +24,7 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class GetLesson(generics.ListAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = [AllowAny] # Change to IsAuthenticated
+    permission_classes = [IsAuthenticated] # Change to IsAuthenticated
 
     def list(self, request, uid, lid):
         queryset = self.get_queryset().filter(unit=Unit.objects.get(id=uid).id).filter(id=lid)
@@ -44,10 +46,10 @@ class GetLesson(generics.ListAPIView):
 class GetReview(generics.ListAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
-    def list(self, request):
-        progress = Progress.objects.get(user=request.user.id)
+    def list(self, request, id):
+        progress = Progress.objects.get(user=id)
         phrase_progress = PhraseProgress.objects.filter(progressObj=progress)
         sentence_progress =SentenceProgress.objects.filter(progressObj=progress)
         phrases = []
@@ -66,17 +68,22 @@ class GetReview(generics.ListAPIView):
 
 class UnitList(generics.ListAPIView):
     serializer_class = UnitSerializer
-    permission_classes = [AllowAny]# Change to IsAuthenticated
+    permission_classes = [IsAuthenticated]# Change to IsAuthenticated
     queryset = Unit.objects.all()
 
-    def list(self, request):
+    def list(self, request, id):
         queryset = self.get_queryset()
+
+        myuser = get_object_or_404(User, pk=id)
+
+        progress = Progress.objects.get(user=myuser)
             
         serializer = UnitSerializer(queryset, many=True)
+        completed_lessons = LessonProgressSerializer(LessonProgress.objects.filter(progressObj=progress.id), many=True).data
         # Return Unit with Lesson Names and ids
         for i in range(len(serializer.data)):
-            serializer.data[i]['lessons'] = LessonSerializer(Lesson.objects.filter(unit=serializer.data[i]['id']), many=True).data
-        return Response(serializer.data)
+            serializer.data[i]['lessons'] = LessonUnitSerializer(Lesson.objects.filter(unit=serializer.data[i]['id']), many=True).data
+        return Response({'data': serializer.data, 'completedLessons': completed_lessons})
 
 class GetPhrase(generics.ListAPIView):
     queryset = Phrase.objects.all()

@@ -190,7 +190,8 @@ CORS_ALLOWED_ORIGINS = [
 
 ALLOWED_HOSTS = [
     'http://localhost:5173', 
-    '127.0.0.1'
+    '127.0.0.1',
+    'http://localhost:3000', 
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True

@@ -52,9 +52,16 @@ class CustomSlideSerializer(serializers.ModelSerializer):
 class SlideSerializer(serializers.ModelSerializer):
     phrase = PhraseSerializer(many=True, read_only=True)
     sentence = SentenceSerializer(read_only=True)
+    note = NoteSerializer(read_only=True)
     class Meta:
         model = Slide
         fields = ['id', 'lesson', 'slideType', 'phrase', 'sentence', 'note', 'prompt', 'options', 'answer', 'dialogue', 'image','audio', 'video']
+
+
+class LessonUnitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = ['id', 'lessonName', 'lessonDescription', 'lessonOrder', 'unit']
 
 
 class LessonSerializer(serializers.ModelSerializer):
