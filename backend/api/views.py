@@ -12,6 +12,7 @@ from progress.serializers import LessonProgressSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
+from datetime import date, timedelta
 
 
 # Create your views here.
@@ -38,7 +39,6 @@ class GetLesson(generics.ListAPIView):
                 w = Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])
                 serializer.data[0]['phrases'][-1]['containedWords'][x-1] = WordSerializer(Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])).data
                 print(w, i)"""
-        print(serializer.data)
         serializer.data[0]['slides'] = SlideSerializer(Slide.objects.filter(lesson=lid), many=True).data
 
         return Response(serializer.data)
@@ -80,6 +80,13 @@ class UnitList(generics.ListAPIView):
             
         serializer = UnitSerializer(queryset, many=True)
         completed_lessons = LessonProgressSerializer(LessonProgress.objects.filter(progressObj=progress.id), many=True).data
+        
+        if progress.lastUpdate == date.today():
+            pass
+        elif progress.lastUpdate == (date.today() - timedelta(days=1)):
+            progress.streak = 0
+        progress.save()
+
         # Return Unit with Lesson Names and ids
         for i in range(len(serializer.data)):
             serializer.data[i]['lessons'] = LessonUnitSerializer(Lesson.objects.filter(unit=serializer.data[i]['id']), many=True).data
@@ -115,8 +122,6 @@ class CreateUserView(APIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token)
         }
-        
+        print(serialized.data)
+        print(Response(response).data)
         return Response(response)
-
-
-
