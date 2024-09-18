@@ -58,16 +58,19 @@ class UpdateProgress(APIView):
         try:
             lessonQueryset = LessonProgress.objects.filter(lesson__pk=data['lesson'], progressObj=progress)
             lesson = lessonQueryset.first()
+            progress.lastLesson = lesson.lesson
+            print(lesson)
             if len(lessonQueryset)==1:
                 lesson.completed=True
                 lesson.save()
-                print('updating')
             else:
                 lessonObj = Lesson.objects.filter(id=data['lesson']).first()
                 LessonProgress.objects.create(lesson=lessonObj, progressObj=progress, completed=True)
             #lesson = LessonProgress.objects.update_or_create(progressObj=progress, lesson__pk=data['lesson'], defaults={'completed': True})
 
         except:
+            lessonObj = Lesson.objects.filter(id=data['lesson']).first()
+            LessonProgress.objects.create(lesson=lessonObj, progressObj=progress, completed=True)
             """lessonObj = Lesson.objects.filter(id=data['lesson']).first()
             LessonProgress.objects.create(lesson=lessonObj, progressObj=progress, completed=True)
             print('creating')"""
@@ -115,7 +118,7 @@ class UpdateProgress(APIView):
             progress.lastUpdate = date.today()
         else:
             progress.streak=1
-            progress.lastUpdate = date.today()     
+            progress.lastUpdate = date.today()
         progress.save()
         serializer = ProgressSerializer(progress)
         return Response(serializer.data)

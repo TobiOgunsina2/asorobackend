@@ -29,10 +29,11 @@ class PhraseSerializer(serializers.ModelSerializer):
     containedWords = WordSerializer(many=True, read_only=True)
     class Meta:
         model = Phrase
-        fields = ['id', 'text', 'translation', 'note', 'relatedPhrases', 'containedWords', 'brokenDownPhrase']
+        fields = ['id', 'text', 'translation', 'note', 'relatedPhrases', 'containedWords', 'order', 'brokenDownPhrase']
 
 class SentenceSerializer(serializers.ModelSerializer):
     containedPhrases = PhraseSerializer(many=True, read_only=True)
+    containedWords = WordSerializer(many=True, read_only=True)
     
     class Meta:
         model = Sentence

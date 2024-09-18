@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from .models import Word, Unit, Lesson,Phrase, Sentence, Slide, Note
 from progress.models import Progress, PhraseProgress, SentenceProgress, LessonProgress
-from progress.serializers import LessonProgressSerializer
+from progress.serializers import LessonProgressSerializer, ProgressSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
@@ -83,14 +83,17 @@ class UnitList(generics.ListAPIView):
         
         if progress.lastUpdate == date.today():
             pass
-        elif progress.lastUpdate == (date.today() - timedelta(days=1)):
+        elif progress.lastUpdate > (date.today() - timedelta(days=2)):
             progress.streak = 0
+        progress.lastUpdate = date.today()
         progress.save()
+
+        serializedProgress=ProgressSerializer(progress)
 
         # Return Unit with Lesson Names and ids
         for i in range(len(serializer.data)):
             serializer.data[i]['lessons'] = LessonUnitSerializer(Lesson.objects.filter(unit=serializer.data[i]['id']), many=True).data
-        return Response({'data': serializer.data, 'completedLessons': completed_lessons})
+        return Response({'data': serializer.data, 'completedLessons': completed_lessons, 'lastLesson': serializedProgress.data['lastLesson']})
 
 class GetPhrase(generics.ListAPIView):
     queryset = Phrase.objects.all()
@@ -100,7 +103,6 @@ class GetPhrase(generics.ListAPIView):
     def list(self, request, pk):
         queryset = self.get_queryset().filter(id=pk)
         serializer = PhraseSerializer(queryset, many=True)
-        print(serializer.data)
         return Response(serializer.data)
 
 
@@ -114,7 +116,6 @@ class CreateUserView(APIView):
         user = serialized.save()
         progress = Progress.objects.create(user=user)
         progress.save()
-        print(Token.objects.get_or_create(user=user)[0].generate_key())
         refresh = RefreshToken.for_user(user)
         response = {
             'success': True,
@@ -122,6 +123,4 @@ class CreateUserView(APIView):
             'refresh': str(refresh),
             'access': str(refresh.access_token)
         }
-        print(serialized.data)
-        print(Response(response).data)
         return Response(response)
