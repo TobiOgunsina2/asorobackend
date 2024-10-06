@@ -30,7 +30,6 @@ class Phrase(models.Model):
     note = models.CharField(max_length=300, blank=True, null=True)
     order = models.CharField(max_length=20, blank=True, null=True)
     
-    relatedPhrases= models.ManyToManyField('self', blank=True)
     containedWords = models.ManyToManyField(Word)
     # to attach to contained words to show user the parts of the phrase
     brokenDownPhrase = models.CharField(max_length=100, default='', blank=True, null=True)
