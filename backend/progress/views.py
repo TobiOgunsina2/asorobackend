@@ -2,7 +2,7 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny
-from .models import Progress, SentenceProgress, PhraseProgress, WordProgress, LessonProgress
+from .models import Progress, SentenceProgress, PhraseProgress, LessonProgress
 from rest_framework.response import Response
 from .serializers import ProgressSerializer, SentenceProgressSerializer, WordProgressSerializer, PhraseProgressSerializer, LessonProgressSerializer
 from api.models import Phrase, Sentence, Word, Lesson
@@ -59,7 +59,6 @@ class UpdateProgress(APIView):
             lessonQueryset = LessonProgress.objects.filter(lesson__pk=data['lesson'], progressObj=progress)
             lesson = lessonQueryset.first()
             progress.lastLesson = lesson.lesson
-            print(lesson)
             if len(lessonQueryset)==1:
                 lesson.completed=True
                 lesson.save()
@@ -96,24 +95,14 @@ class UpdateProgress(APIView):
                 sentenceObj = Sentence.objects.filter(id=i).first()
                 sentence = SentenceProgress.objects.create(sentence=sentenceObj, progressObj=progress)
                 sentence.save()
-        for i in data['words']:
-            try:
-                word = WordProgress.objects.filter(word__pk=i, progressObj=progress).first()
-                if word.masteryLevel<15:
-                    word.masteryLevel=word.masteryLevel+1
-                    word.save()
-            except:
-                wordObj = Word.objects.filter(id=i).first()
-                word = WordProgress.objects.create(word=wordObj, progressObj=progress)
-                word.save()
         
 
-        if progress.lastUpdate == date.today():
+        if progress.lastUpdate < (date.today() - timedelta(days=1)):
             pass
-        elif progress.lastUpdate == (date.today() - timedelta(days=1)):
+        elif progress.lastUpdate > (date.today() - timedelta(days=1)):
             progress.streak= progress.streak+1
             progress.lastUpdate = date.today()
-        elif progress.lastUpdate == (date.today() - timedelta(days=2)):
+        elif progress.lastUpdate > (date.today() - timedelta(days=2)):
             progress.streak= 0
             progress.lastUpdate = date.today()
         else:

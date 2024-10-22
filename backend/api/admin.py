@@ -15,3 +15,4 @@ admin.site.register(Note, ObjectAdmin)
 admin.site.register(CustomSlide, ObjectAdmin)
 admin.site.register(Slide, ObjectAdmin)
 
+

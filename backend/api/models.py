@@ -44,8 +44,6 @@ class Lesson(models.Model):
     lessonName = models.CharField(max_length=100)
     lessonOrder = models.CharField(max_length=100)
     lessonDescription = models.CharField(max_length=300, default='')
-    phrase = models.ManyToManyField(Phrase, default='')
-    words = models.ManyToManyField(Word, blank=True)
     unit = models.ForeignKey(Unit, on_delete=models.SET_DEFAULT, default=1)
 
     def __str__(self):
@@ -111,7 +109,10 @@ class Slide(models.Model):
 
     slideType = models.CharField(max_length=1, choices=slideTypes)
     
-    phrase = models.ManyToManyField(Phrase)
+    phrase = models.ForeignKey(Phrase, on_delete=models.CASCADE, null=True, blank=True)
+
+    otherPhrases = models.ManyToManyField(Phrase, related_name="other_phrases", blank=True, null=True)
+    
     sentence = models.ForeignKey(Sentence, on_delete=models.CASCADE, blank=True, null=True)
     note = models.ForeignKey(Note, on_delete=models.CASCADE, blank=True, null=True)
 
@@ -126,8 +127,8 @@ class Slide(models.Model):
     def __str__(self):
         word = ''
         audio = ''
-        if self.phrase.all().first():
-            word=self.phrase.all().first().text
+        if self.phrase:
+            word=self.phrase.text
         if str(self.audio) != 'None':
             audio = str(self.audio)
         return str(self.lesson)[:4]+' '+word+' '+slideTypes[self.slideType]+ ' ' + audio

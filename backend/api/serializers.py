@@ -29,7 +29,7 @@ class PhraseSerializer(serializers.ModelSerializer):
     containedWords = WordSerializer(many=True, read_only=True)
     class Meta:
         model = Phrase
-        fields = ['id', 'text', 'translation', 'note', 'relatedPhrases', 'containedWords', 'order', 'brokenDownPhrase']
+        fields = ['id', 'text', 'translation', 'note', 'containedWords', 'order', 'brokenDownPhrase']
 
 class SentenceSerializer(serializers.ModelSerializer):
     containedPhrases = PhraseSerializer(many=True, read_only=True)
@@ -51,12 +51,13 @@ class CustomSlideSerializer(serializers.ModelSerializer):
         fields = ['id', 'normalComponentType', 'prompt', 'options', 'answer', 'dialogue', 'lesson']
 
 class SlideSerializer(serializers.ModelSerializer):
-    phrase = PhraseSerializer(many=True, read_only=True)
+    phrase = PhraseSerializer(read_only=True)
+    otherPhrases = PhraseSerializer(many=True, read_only=True)
     sentence = SentenceSerializer(read_only=True)
     note = NoteSerializer(read_only=True)
     class Meta:
         model = Slide
-        fields = ['id', 'lesson', 'slideType', 'phrase', 'sentence', 'note', 'prompt', 'options', 'answer', 'dialogue', 'image','audio', 'video']
+        fields = ['id', 'lesson', 'slideType', 'phrase', 'otherPhrases', 'sentence', 'note', 'prompt', 'options', 'answer', 'dialogue', 'image','audio', 'video']
 
 
 class LessonUnitSerializer(serializers.ModelSerializer):
@@ -66,11 +67,9 @@ class LessonUnitSerializer(serializers.ModelSerializer):
 
 
 class LessonSerializer(serializers.ModelSerializer):
-    sentences = SentenceSerializer(many=True, read_only=True)
-    phrase = PhraseSerializer(many=True, read_only=True)
     class Meta:
         model = Lesson
-        fields = ['id', 'lessonName', 'phrase', 'sentences','lessonDescription', 'lessonOrder', 'unit']
+        fields = ['id', 'lessonName','lessonDescription', 'lessonOrder', 'unit']
 
 
 class UnitSerializer(serializers.ModelSerializer):

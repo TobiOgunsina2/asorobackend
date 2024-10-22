@@ -30,15 +30,6 @@ class GetLesson(generics.ListAPIView):
     def list(self, request, uid, lid):
         queryset = self.get_queryset().filter(unit=Unit.objects.get(id=uid).id).filter(id=lid)
         serializer = LessonSerializer(queryset, many=True)
-        """serializer.data[0]['phrases'] = []
-        for i in serializer.data[0]['phrase']:
-            serializer.data[0]['phrases'] += PhraseSerializer(Phrase.objects.filter(id=i), many=True).data
-            for x in range(len(serializer.data[0]['phrases'][-1]['relatedPhrases'])):
-                serializer.data[0]['phrases'][-1]['relatedPhrases'][x-1] = PhraseSerializer(Phrase.objects.get(id=serializer.data[0]['phrases'][-1]['relatedPhrases'][x-1])).data
-            for x in range(len(serializer.data[0]['phrases'][-1]['containedWords'])):
-                w = Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])
-                serializer.data[0]['phrases'][-1]['containedWords'][x-1] = WordSerializer(Word.objects.get(id=serializer.data[0]['phrases'][-1]['containedWords'][x-1])).data
-                print(w, i)"""
         serializer.data[0]['slides'] = SlideSerializer(Slide.objects.filter(lesson=lid), many=True).data
 
         return Response(serializer.data)
@@ -50,8 +41,18 @@ class GetReview(generics.ListAPIView):
 
     def list(self, request, id):
         progress = Progress.objects.get(user=id)
+        lesson_progress = LessonProgress.objects.filter(progressObj=progress)
+        slides = []
+        added = 0
+        for i in lesson_progress:
+            for x in Slide.objects.filter(lesson__pk=i.lesson.id):
+                if added<15:
+                    if x.slideType !='i' and x.slideType!='n' and  x.slideType!='d':
+                        slides.append(SlideSerializer(x).data)
+                        added+=1
         phrase_progress = PhraseProgress.objects.filter(progressObj=progress)
         sentence_progress =SentenceProgress.objects.filter(progressObj=progress)
+
         phrases = []
         sentences = []
         for i in phrase_progress:
@@ -62,7 +63,7 @@ class GetReview(generics.ListAPIView):
             sentence_data = SentenceSerializer(Sentence.objects.filter(id=i.sentence.id), many=True).data
             sentence_data[0]['masteryLevel'] = i.masteryLevel 
             sentences+=sentence_data
-        serializer = {'data': {'phrases': phrases, 'sentences': sentences}}
+        serializer = {'data': {'phrases': phrases, 'sentences': sentences, 'slides': slides[:20]}}
 
         return Response(serializer['data'])
 
