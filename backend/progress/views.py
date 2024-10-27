@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from django.contrib.auth.models import User
+
 from rest_framework.permissions import AllowAny
 from .models import Progress, SentenceProgress, PhraseProgress, LessonProgress
 from rest_framework.response import Response
@@ -102,7 +103,7 @@ class UpdateProgress(APIView):
         elif progress.lastUpdate > (date.today() - timedelta(days=1)):
             progress.streak= progress.streak+1
             progress.lastUpdate = date.today()
-        elif progress.lastUpdate > (date.today() - timedelta(days=2)):
+        elif progress.lastUpdate < (date.today() - timedelta(days=1)):
             progress.streak= 0
             progress.lastUpdate = date.today()
         else:
